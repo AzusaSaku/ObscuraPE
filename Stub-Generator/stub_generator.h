@@ -1,0 +1,4 @@
+#ifndef STUB_GENERATOR_H
+#define STUB_GENERATOR_H
+
+#endif //STUB_GENERATOR_H

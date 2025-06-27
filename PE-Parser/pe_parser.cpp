@@ -62,7 +62,7 @@ bool PEParser::Parse() {
     // 解析NT头
     const size_t optionalHeaderOffset = ntHeaderOffset + sizeof(uint32_t) + sizeof(IMAGE_FILE_HEADER);
     if (!IsWithinBounds<uint16_t>(optionalHeaderOffset)) {
-        std::cerr << "Error: Failed to get file header\n";
+        std::cerr << "Error: Failed to get optional header magic\n";
         return false;
     }
 
@@ -88,11 +88,16 @@ bool PEParser::Parse() {
     }
 
     // 提取节区头
-    const IMAGE_FILE_HEADER* fileHeader = GetFileHeader();
-    if (!fileHeader) {
-        std::cerr << "Failed to get the file header\n";
+    const IMAGE_FILE_HEADER* fileHeader = nullptr;
+    if (peType_ == PE_TYPE::PE32) {
+        fileHeader = &ntHeaders32_.FileHeader;
+    } else if (peType_ == PE_TYPE::PE64) {
+        fileHeader = &ntHeaders64_.FileHeader;
+    } else {
+        std::cerr << "Error: Invalid PE type after parsing\n";
         return false;
     }
+
     const size_t sectionOffset = ntHeaderOffset + sizeof(uint32_t) +
                                 sizeof(IMAGE_FILE_HEADER) +
                                 fileHeader->SizeOfOptionalHeader;
